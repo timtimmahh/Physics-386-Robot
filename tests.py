@@ -1,11 +1,63 @@
 #!/usr/bin/env python3
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent, MoveTank
+from ev3dev2.motor import Motor, LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent, MoveTank, MoveSteering
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor, UltrasonicSensor, GyroSensor
 from ev3dev2.button import Button
 from ev3dev2.led import Leds
 
 button = Button()
+
+
+def test_left_motor():
+    test_single_motor(OUTPUT_A)
+
+
+def test_right_motor():
+    test_single_motor(OUTPUT_B)
+
+
+def test_single_motor(output):
+    motor = LargeMotor(output)
+
+    for command in motor.commands:
+        motor.command = command
+        print(f'Motor at {output} set to {motor.command}')
+        motor.on_for_rotations(30, 0.5)
+        print_and_wait(motor)
+        motor.on_for_degrees(30, 45)
+        print_and_wait(motor)
+        motor.on_to_position(30, 5)
+        print_and_wait(motor)
+        motor.on_for_seconds(30, 3)
+        print_and_wait(motor)
+
+
+def print_and_wait(*motors: Motor):
+
+    print(''.join([f'MOTOR: {motor.address} - Tacho count per meters: {motor.count_per_m}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Tacho count per rotation: {motor.count_per_rot}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Full tacho count for travel: {motor.full_travel_count}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Duty cycle: {motor.duty_cycle}, Duty cycle set point: {motor.duty_cycle_sp}'
+                   for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Polarity: {motor.polarity}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Position: {motor.position}, prop: {motor.position_p}, int: {motor.position_i},'
+                   f' der: {motor.position_d}, set point: {motor.position_sp}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Max - speed: {motor.max_speed}, rot/min: {motor.max_rpm}, '
+                   f'/sec: {motor.max_rps}, deg/min: {motor.max_dpm}, /sec: {motor.max_dps}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Current speed: {motor.speed}, prop: {motor.speed_p}, int: {motor.speed_i}'
+                   f', der: {motor.position_d}, sp: {motor.speed_sp}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Ramp up speed: {motor.ramp_up_sp}, down: {motor.ramp_down_sp}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Current state: {motor.state}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - Current stop action: {motor.stop_action}' for motor in motors]))
+    print(''.join([f'MOTOR: {motor.address} - running: {motor.is_running}, ramping: {motor.is_ramping}, '
+                   f'holding: {motor.is_holding}, overloaded: {motor.is_overloaded}, stalled: {motor.is_stalled}'
+                   for motor in motors]))
+    for motor in motors:
+        motor.wait_until_not_moving()
+
+
+def test_both_motors(steering: bool = False):
+    ms = MoveSteering(OUTPUT_A, OUTPUT_B) if steering else MoveTank(OUTPUT_A, OUTPUT_B)
 
 
 def test_touch_sensor():
