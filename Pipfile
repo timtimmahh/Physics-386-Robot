@@ -9,4 +9,4 @@ verify_ssl = true
 requests = {editable = true,git = "https://github.com/ev3dev/ev3dev-lang-python.git"}
 
 [requires]
-python_version = "3.7"
+python_version = "3.5.3"
