@@ -4,6 +4,7 @@ from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor, UltrasonicSensor, GyroSensor
 from ev3dev2.button import Button
 from ev3dev2.led import Leds
+from time import sleep
 
 button = Button()
 
@@ -18,18 +19,18 @@ def test_right_motor():
 
 def test_single_motor(output):
     motor = LargeMotor(output)
-
-    for command in motor.commands:
-        motor.command = command
-        print('Motor at {} set to {}'.format(output, motor.command))
-        motor.on_for_rotations(30, 0.5)
-        print_and_wait(motor)
-        motor.on_for_degrees(30, 45)
-        print_and_wait(motor)
-        motor.on_to_position(30, 5)
-        print_and_wait(motor)
-        motor.on_for_seconds(30, 3)
-        print_and_wait(motor)
+    # motor.command = LargeMotor.COMMAND_RUN_FOREVER
+    # for command in motor.commands:
+    #     print('Motor at {} set to {}'.format(output, command))
+    #     motor.command = command
+    motor.on_for_seconds(SpeedPercent(100), 5)
+    # print_and_wait(motor)
+    motor.on_for_rotations(SpeedPercent(30), 0.5)
+    # print_and_wait(motor)
+    motor.on_for_degrees(SpeedPercent(30), 45)
+    # print_and_wait(motor)
+    motor.on_to_position(SpeedPercent(30), 5)
+    # print_and_wait(motor)
 
 
 def print_and_wait(*motors: Motor):
@@ -73,8 +74,8 @@ def test_both_motors(steering: bool = False):
     ms = MoveSteering(OUTPUT_A, OUTPUT_B) if steering else MoveTank(OUTPUT_A, OUTPUT_B)
 
 
-def test_touch_sensor():
-    ts = TouchSensor(INPUT_1)
+def test_touch():
+    ts = TouchSensor(INPUT_4)
     leds = Leds()
 
     print("Press the touch sensor to change the LED color!")
@@ -88,7 +89,7 @@ def test_touch_sensor():
             leds.set_color("RIGHT", "RED")
 
 
-def test_gyro_sensor():
+def test_gyro():
     gs = GyroSensor(INPUT_2)
 
     for mode in gs.modes:
@@ -96,37 +97,41 @@ def test_gyro_sensor():
         print('The current gyro mode is: {}'.format(gs.mode))
         print('The angle is at {} degrees'.format(gs.angle))
         print('The rate of rotation is {} degrees/second'.format(gs.rate))
-        print('Here\'s both as a tuple: {}'.format(gs.angle_and_rate))
-        print('Tilt angle: {} degrees?'.format(gs.tilt_angle))
-        print('Tilt rate: {} degrees/second?'.format(gs.tilt_rate))
-        print('Waiting for angle to change by 90 degrees clockwise: {}'.format(gs.wait_until_angle_changed_by(90, True)))
-        print('Waiting for angle to change by 90 degrees any direction: {}'.format(gs.wait_until_angle_changed_by(90, False))
-              )
+        # print('Here\'s both as a tuple: {}'.format(gs.angle_and_rate))
+        # print('Tilt angle: {} degrees?'.format(gs.tilt_angle))
+        # print('Tilt rate: {} degrees/second?'.format(gs.tilt_rate))
+        # if gs.mode in (GyroSensor.MODE_GYRO_ANG, GyroSensor.MODE_GYRO_G_A, GyroSensor.MODE_TILT_ANG):
+        #     print('Waiting for angle to change by 90 degrees clockwise: {}'.format(gs.wait_until_angle_changed_by(90, True)))
+        #     print('Waiting for angle to change by 90 degrees any direction: {}'.format(
+        #         gs.wait_until_angle_changed_by(90, False))
+        #           )
 
     while not button.any():
         print('Angle: {}, Rate: {}'.format(gs.angle, gs.rate))
-        gs.wait_until_angle_changed_by(15, False)
+        sleep(0.3)
+        # gs.wait_until_angle_changed_by(15, False)
 
 
-def test_ultrasonic_sensor():
+def test_ultrasonic():
     us = UltrasonicSensor(INPUT_3)
-    from time import sleep
 
     for mode in us.modes:
+        if 'SI' in mode:
+            continue
         us.mode = mode
         print('The current ultrasonic mode is: {}'.format(us.mode))
-        print('Distance in cm: {}, ping: {}'.format(us.distance_centimeters, us.distance_centimeters_ping))
-        print('Distance in inches: {}, ping: {}'.format(us.distance_inches, us.distance_inches_ping))
+        print('Distance in cm: {}'.format(us.distance_centimeters))
+        print('Distance in inches: {}'.format(us.distance_inches))
         print('Another ultrasonic sensor nearby? {}'.format(us.other_sensor_present))
-        sleep(0.25)
+        sleep(0.5)
 
     while not button.any():
         print('Inches: {}, cm: {}'.format(us.distance_inches, us.distance_centimeters))
-        sleep(0.25)
+        sleep(0.5)
 
 
-def test_color_sensor():
-    cs = ColorSensor(INPUT_4)
+def test_color():
+    cs = ColorSensor(INPUT_1)
 
     for mode in cs.modes:
         cs.mode = mode
@@ -144,9 +149,4 @@ def test_color_sensor():
         print('Color: {} which is {}'.format(cs.rgb, cs.color_name))
         print('Ambient light intensity: {}'.format(cs.ambient_light_intensity))
         print('Reflected light intensity: {}'.format(cs.reflected_light_intensity))
-
-
-test_touch_sensor()
-test_gyro_sensor()
-test_ultrasonic_sensor()
-test_color_sensor()
+        sleep(0.5)

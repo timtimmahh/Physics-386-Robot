@@ -29,7 +29,7 @@ def test_color_sensor():
     ls = ColorSensor(INPUT_4)
     ls.command(LightSensor.MODE_REFLECT)
 
-    print(f'Reflected light intensity is: ')
+    print('Reflected light intensity is: ')
 
 
 def test_ultrasonic_sensor():
