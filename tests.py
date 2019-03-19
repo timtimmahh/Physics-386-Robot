@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+from time import sleep
+
+from ev3dev2.button import Button
+from ev3dev2.led import Leds
 from ev3dev2.motor import Motor, LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent, MoveTank, MoveSteering
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor, UltrasonicSensor, GyroSensor
-from ev3dev2.button import Button
-from ev3dev2.led import Leds
-from time import sleep
 
 button = Button()
 
@@ -63,9 +64,9 @@ def print_and_wait(*motors: Motor):
     print(''.join(['MOTOR: {} - Current state: {}'.format(motor.address, motor.state) for motor in motors]))
     print(''.join(['MOTOR: {} - Current stop action: {}'.format(motor.address, motor.stop_action) for motor in motors]))
     print(''.join(['MOTOR: {} - running: {}, ramping: {}, '
-                   'holding: {}, overloaded: {}, stalled: {}'.format(
-        motor.address, motor.is_running, motor.is_ramping, motor.is_holding, motor.is_overloaded, motor.is_stalled)
-        for motor in motors]))
+                   'holding: {}, overloaded: {}, stalled: {}'.format(motor.address, motor.is_running, motor.is_ramping,
+                                                                     motor.is_holding, motor.is_overloaded,
+                                                                     motor.is_stalled) for motor in motors]))
     for motor in motors:
         motor.wait_until_not_moving()
 
@@ -92,22 +93,23 @@ def test_touch():
 def test_gyro():
     gs = GyroSensor(INPUT_2)
 
-    for mode in gs.modes:
-        gs.mode = mode
-        print('The current gyro mode is: {}'.format(gs.mode))
-        print('The angle is at {} degrees'.format(gs.angle))
-        print('The rate of rotation is {} degrees/second'.format(gs.rate))
-        # print('Here\'s both as a tuple: {}'.format(gs.angle_and_rate))
-        # print('Tilt angle: {} degrees?'.format(gs.tilt_angle))
-        # print('Tilt rate: {} degrees/second?'.format(gs.tilt_rate))
-        # if gs.mode in (GyroSensor.MODE_GYRO_ANG, GyroSensor.MODE_GYRO_G_A, GyroSensor.MODE_TILT_ANG):
-        #     print('Waiting for angle to change by 90 degrees clockwise: {}'.format(gs.wait_until_angle_changed_by(90, True)))
-        #     print('Waiting for angle to change by 90 degrees any direction: {}'.format(
-        #         gs.wait_until_angle_changed_by(90, False))
-        #           )
+    # for mode in gs.modes:
+    #     gs.mode = mode
+    #     print('The current gyro mode is: {}'.format(gs.mode))
+    #     print('The angle is at {} degrees'.format(gs.angle))
+    #     print('The rate of rotation is {} degrees/second'.format(gs.rate))
+    #     # print('Here\'s both as a tuple: {}'.format(gs.angle_and_rate))
+    #     # print('Tilt angle: {} degrees?'.format(gs.tilt_angle))
+    #     # print('Tilt rate: {} degrees/second?'.format(gs.tilt_rate))
+    #     # if gs.mode in (GyroSensor.MODE_GYRO_ANG, GyroSensor.MODE_GYRO_G_A, GyroSensor.MODE_TILT_ANG):
+    #     #     print('Waiting for angle to change by 90 degrees clockwise: {}'.format(gs.wait_until_angle_changed_by(90, True)))
+    #     #     print('Waiting for angle to change by 90 degrees any direction: {}'.format(
+    #     #         gs.wait_until_angle_changed_by(90, False))
+    #     #           )
 
+    gs.mode = GyroSensor.MODE_GYRO_G_A
     while not button.any():
-        print('Angle: {}, Rate: {}'.format(gs.angle, gs.rate))
+        print('Angle: {}'.format(gs.angle_and_rate))
         sleep(0.3)
         # gs.wait_until_angle_changed_by(15, False)
 

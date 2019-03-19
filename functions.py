@@ -1,44 +1,44 @@
-#!/usr/bin/env python3
-from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedPercent, MoveTank
-from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, INPUT_4
-from ev3dev2.sensor.lego import TouchSensor, ColorSensor, UltrasonicSensor, GyroSensor
-from ev3dev2.button import Button
-from ev3dev2.led import Leds
+#!/usr/bin/python3
+from multiprocessing import Process, Value
+from time import sleep
+
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, SpeedPercent, MoveDifferential
+from ev3dev2.sensor import INPUT_4
+from ev3dev2.sensor.lego import GyroSensor
+from ev3dev2.wheel import EV3EducationSetTire
+
+from logger import get_logger
+
+# done = False
 
 
-button = Button()
+gs = GyroSensor(INPUT_4)
+# reset the angle and rate values for the Gyro by changing the mode
+gs.mode = GyroSensor.MODE_GYRO_CAL
+sleep(1)
+gs.mode = GyroSensor.MODE_GYRO_RATE
+gs.mode = GyroSensor.MODE_GYRO_ANG
+gs.mode = GyroSensor.MODE_GYRO_G_A
+sleep(1)
 
-def test_touch_sensor():
-    ts = TouchSensor(INPUT_1)
-    leds = Leds()
-
-    print("Press the touch sensor to change the LED color!")
-
-    repeat_until_button_press()
-
-    while not button.any():
-        if ts.is_pressed:
-            leds.set_color("LEFT", "GREEN")
-            leds.set_color("RIGHT", "GREEN")
-        else:
-            leds.set_color("LEFT", "RED")
-            leds.set_color("RIGHT", "RED")
+motors = MoveDifferential(OUTPUT_A, OUTPUT_B, EV3EducationSetTire, 100)
 
 
-def test_color_sensor():
-    ls = ColorSensor(INPUT_4)
-    ls.command(LightSensor.MODE_REFLECT)
-
-    print('Reflected light intensity is: ')
-
-
-def test_ultrasonic_sensor():
-    pass
-
-def test_gyro_sensor():
-    pass
+def check_gyro(val: Value, logger, gyro: GyroSensor):
+    print('Starting log...')
+    # write to a file for testing
+    while val.value == 0:
+        logger.info('(Angle, Rate) = {}'.format(gyro.angle_and_rate))
+    print('Leaving process...')
 
 
-while not button.any():
-    test_touch_sensor()
-    test_color_sensor()
+value = Value('i', 0)
+t = Process(target=check_gyro, args=(value, get_logger('arc.gyro'), gs))
+t.start()
+
+motors.on_arc_left(SpeedPercent(50), 200, 1256.64)
+
+# done = True
+value.value = 1
+t.join()
+print('Process joined')

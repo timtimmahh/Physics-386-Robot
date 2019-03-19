@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "401bda80ac3a2547e5d4cee6e9633561c0f8c5ad7b1bf6fa2f033043b95ba517"
+            "sha256": "c77ddf0c9abd231b7dc7c5c55211751a8622fba26dc4d46b4c1bcc7662fa9c4d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -55,6 +55,13 @@
             "editable": true,
             "git": "https://github.com/ev3dev/ev3dev-lang-python.git",
             "ref": "e9a1598802e24d6c353b5416fd0588005f9421dc"
+        },
+        "uflash": {
+            "hashes": [
+                "sha256:92f7f51e00e9f48cf818226e375017b103715511e27817c80943f747a5ebecd8"
+            ],
+            "index": "pypi",
+            "version": "==1.2.4"
         }
     },
     "develop": {}
