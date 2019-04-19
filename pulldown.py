@@ -29,6 +29,7 @@ wheels.on(0, SpeedPercent(50))
 while proximity_sensor.distance_centimeters >= 22:
     print('First wall: {}'.format(proximity_sensor.distance_centimeters))
 
+
 wheels.on(-100, SpeedPercent(15))
 
 start_angle = gyro.angle
@@ -39,10 +40,13 @@ wheels.on(0, SpeedPercent(50))
 while proximity_sensor.distance_centimeters >= 12:
     pass
 wheels.off(brake=True)
-front_claw.on_for_degrees(SpeedPercent(20), -570)
-wheels.on_for_rotations(0, SpeedPercent(25), 0.5)
-front_claw.on_for_degrees(SpeedPercent(100), 570, block=False)
-wheels.on_for_rotations(0, SpeedPercent(65), 0.4)
+
+front_claw.on_for_degrees(SpeedPercent(20), -570)  # clenches the claw
+wheels.on_for_rotations(0, SpeedPercent(25), 0.5)  # moves up to get the claw on the
+front_claw.on_for_degrees(SpeedPercent(100), 570, block=False)  # opens the claw again
+wheels.on_for_rotations(0, SpeedPercent(-100), 0.5)
+wheels.on_for_rotations(0, SpeedPercent(100), 0.5)
+wheels.on_for_rotations(0, SpeedPercent(-100), 0.5)
 
 front_claw.on_for_degrees(SpeedPercent(20), -570)
 wheels.on(0, SpeedPercent(-50))
@@ -58,6 +62,7 @@ gyro.mode = GyroSensor.MODE_GYRO_ANG
 time.sleep(1)
 
 wheels.on(-100, SpeedPercent(15))
+
 
 while gyro.angle > -90:
     print('Gyro angle {}'.format(gyro.angle))
