@@ -20,25 +20,25 @@ class Claw:
     def open(self):
         if self.is_open:
             self.close()
-        self._claw.on_for_degrees(SpeedPercent(50), 580, brake=False, block=True)
+        self._claw.on_for_degrees(SpeedPercent(50), 570, brake=False, block=True)
         self.is_open = True
 
     def close(self):
         if not self.is_open:
             self.open()
-        self._claw.on_for_degrees(SpeedPercent(50), -580, brake=False, block=True)
+        self._claw.on_for_degrees(SpeedPercent(50), -570, brake=False, block=True)
         self.is_open = False
 
     def grab_when_within(self, distance_cm=5.0, on_close=None, while_waiting=None, cancel=None):
         if not self.is_open:
             self.open()
         while self._us_sensor.distance_centimeters >= distance_cm:
-            if cancel and cancel():
+            if cancel and cancel(self._us_sensor.distance_centimeters):
                 return False
             if while_waiting:
-                while_waiting()
+                while_waiting(self._us_sensor.distance_centimeters)
         if on_close:
-            on_close()
+            on_close(self._us_sensor.distance_centimeters)
         self.close()
         return True
 
