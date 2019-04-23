@@ -56,7 +56,7 @@ class Claw:
         return abs(self.get_rotations()) < 0.1
 
     def is_closed(self):
-        return abs(self.get_rotations())
+        return -1.7 < abs(self.get_rotations()) < -1.5
 
 
 class Wheels(MoveSteering):
@@ -128,11 +128,16 @@ class WreckingBall:
 
 class Gyro(GyroSensor):
 
+    def __init__(self, address=None, name_pattern=GyroSensor.SYSTEM_DEVICE_NAME_CONVENTION, name_exact=False, **kwargs):
+        super().__init__(address, name_pattern, name_exact, **kwargs)
+
     def calibrate(self):
+        print('Gyro Calibrating...')
         self.mode = GyroSensor.MODE_GYRO_CAL
         sleep(1)
         self.mode = GyroSensor.MODE_GYRO_RATE
         self.mode = GyroSensor.MODE_GYRO_ANG
+        print('Gyro calibrated\nCurrent angle: {}'.format(self.angle))
         return self.angle
 
 
@@ -158,22 +163,33 @@ class Mission(ABC):
     def on(self, speed):
         self.wheels.on(0, speed)
 
-    def ensure_straight(self, speed, total_distance, init_rotations, init_angle):
+    def _stay_straight(self, move_func, init_angle):
+        if self.gyro.angle != init_angle:
+            self.wheels.turn(20, self.gyro.angle - init_angle)
+            move_func()
+
+    def ensure_straight_for(self, speed, total_distance, init_rotations, init_angle):
         """
         Use the self.gyro to correct any curves when attempting to go straight.
         """
+
+        def distance_remain():
+            return self.wheels.distance_remaining(total_distance, init_rotations)
         self.wheels.on_for_distance(speed, total_distance)
-        while self.wheels.distance_remaining(total_distance, init_rotations) > 0:
-            if self.gyro.angle != init_angle:
-                self.wheels.turn(20, self.gyro.angle - init_angle)
-                # if self.gyro.angle < init_angle:
-                #     self.wheels.turn_left(20, angle_offset())
-                # elif self.gyro.angle > init_angle:
-                #     self.wheels.turn_right(20, angle_offset())
-                # elif turned:
-                self.wheels.on_for_distance(speed,
-                                            self.wheels.distance_remaining(total_distance, init_rotations))
-        return self.wheels.distance_remaining(total_distance, init_rotations)
+        while distance_remain() > 0:
+            self._stay_straight(
+                move_func=lambda: self.wheels.on_for_distance(speed, distance_remain()), init_angle=init_angle)
+        return distance_remain()
+
+    def ensure_straight_until(self, speed, distance_offset, init_angle):
+        """
+        Use the Gyro to correct any curves when going straight until a distance offset.
+        """
+        self.on(speed)
+        self.claw.wait_until_distance(distance_offset, on_wait=lambda: self._stay_straight(move_func=lambda: self.on(
+            speed), init_angle=init_angle))
+
+        return self.claw.eyes.distance_centimeters
 
     def release_motors(self):
         self.wheels.off(brake=False)

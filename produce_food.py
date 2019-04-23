@@ -9,16 +9,17 @@ class ProduceFoodMission(Mission):
     def __init__(self, gyro: Gyro, wheels: Wheels, claw: Claw, touch: TouchSensor, side_motor: MediumMotor) -> None:
         super().__init__(gyro, wheels, claw, touch, side_motor)
         # calibrate gyro
-        self.init_angle = self.gyro.calibrate()
+        self.init_angle = 0
 
-    def forward_carefully(self, distance=430, threshold=15):
+    def forward_carefully(self, distance=420, threshold=15):
         """
         Move forward with a speed of 30% for (distance - threshold) mm then move threshold mm at 5% speed.
         """
         # init_rotations = self.wheels.get_rotations()
         # init_angle = self.gyro.angle
         # move straight with distance - threshold at 30% speed
-        self.wheels.on_for_distance(30 if distance > 0 else -30, abs(distance) - threshold)
+        if distance != 0:
+            self.wheels.on_for_distance(-30 if distance < 0 else 30, abs(distance) - threshold)
         # threshold += self.ensure_straight(30, distance - threshold, init_rotations, init_angle)
         # carefully move forward at 5% speed for threshold distance
         if threshold > 0:
@@ -42,7 +43,7 @@ class ProduceFoodMission(Mission):
         """
         self.wheels.on_arc_left(-40, 180, 250)
         self.wheels.on_arc_right(-40, 190, 470)
-        self.wheels.on_arc_left(-40, 180, 240)
+        self.wheels.on_arc_left(-40, 180, 230)
         self.on(speed=-65)
         self.touch.wait_for_pressed(sleep_ms=None)
         # while not self.touch.is_pressed:
@@ -51,9 +52,9 @@ class ProduceFoodMission(Mission):
         # self.wheels.off(brake=False)
 
     def perform(self):
-        self.init_angle = self.gyro.angle
+        self.init_angle = self.gyro.calibrate()
         # go forward until nearest object is within 25 cm
-        self.on(speed=50)
+        self.on(50)
         self.claw.wait_until_distance()
 
         # hard turn to get off wall
@@ -74,8 +75,10 @@ class ProduceFoodOrbitsMission(ProduceFoodMission):
         # perform produce food
         super().perform()
 
+        self.wheels.off()
         # move backward carefully 30 mm
-        self.wheels.on_for_distance(-15, 30)
+        self.forward_carefully(0, -30)
+        # self.wheels.on_for_distance(-15, 30)
         # rotate until facing satellite
         self.wheels.turn_right(5, 45)
 
@@ -85,18 +88,23 @@ class ProduceFoodOrbitsMission(ProduceFoodMission):
 
         # reverse at an arc of 55 for 55 mm
         self.wheels.on_arc_right(-25, 55, 55)
+        # self.wheels.on_arc_right(-40, 300, 150)
+        print('Current angle: {} turn angle: {}'.format(self.gyro.angle, 90 - (self.gyro.angle - self.init_angle)))
+        self.wheels.turn_left(10, 90 - (self.gyro.angle - self.init_angle))
+        self.wheels.on_for_distance(-5, 25)
         # drop the satellite
         self.claw.open()
-        # self.wheels.on_arc_right(-40, 300, 150)
-        self.wheels.turn_left(10, 90 - (self.gyro.angle - self.init_angle))
         # reverse at 50% speed until touch sensor hits the wall
         self.on(-50)
         self.touch.wait_for_pressed(sleep_ms=None)
-
+        self.wheels.off()
         # rotate right 90 degrees to face the observatory
-        self.wheels.turn_right(35, 90)
+        print('Current angle: {} turn angle: {}'.format(self.gyro.angle, self.gyro.angle - self.init_angle))
+        self.wheels.turn_right(15, self.gyro.angle - self.init_angle)
+        if self.gyro.angle != self.init_angle:
+            self.wheels.turn(15, self.gyro.angle - self.init_angle)
         # move carefully pushing the observatory
-        self.forward_carefully(100, threshold=30)
+        self.forward_carefully(0, threshold=90)
 
         # mission complete, return to the base
         self.return_to_base()

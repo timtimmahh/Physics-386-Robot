@@ -12,7 +12,6 @@ touch_sensor = TouchSensor(INPUT_3)
 button = Button()
 gyro = Gyro(INPUT_1)
 
-intialAngle = gyro.calibrate()
 initial_rotations = wheels.get_rotations()
 if not claw.is_open():
     claw.open()
