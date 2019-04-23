@@ -17,7 +17,7 @@ def on(speed=50):
 
 
 def wait_until_distance(distance=25):
-    while claw._us_sensor.distance_centimeters > distance:
+    while claw.eyes.distance_centimeters > distance:
         pass
 
 

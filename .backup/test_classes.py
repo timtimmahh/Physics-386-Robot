@@ -7,7 +7,7 @@ wheels.move_straight(speed=100)
 
 
 def on_wait():
-    print(claw._us_sensor.distance_centimeters)
+    print(claw.eyes.distance_centimeters)
 
 
 claw.grab_when_within(10.0)

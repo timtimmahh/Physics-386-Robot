@@ -35,7 +35,7 @@ def rotate_until_closest(degrees=45):
     wheels.turn_right(SpeedPercent(5), degrees, block=False)
     distances = []
     while abs(gyro.angle - gyro_init) < degrees:
-        distances.append((abs(gyro.angle - gyro_init), claw._us_sensor.distance_centimeters))
+        distances.append((abs(gyro.angle - gyro_init), claw.eyes.distance_centimeters))
     print('\n'.join(str(distance) for distance in distances))
 
 
