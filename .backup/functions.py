@@ -7,7 +7,7 @@ from ev3dev2.sensor import INPUT_4
 from ev3dev2.sensor.lego import GyroSensor
 from ev3dev2.wheel import EV3EducationSetTire
 
-from logger import get_logger
+from ev3_toys.logger import get_logger
 
 # done = False
 

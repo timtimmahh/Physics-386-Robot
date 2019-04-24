@@ -7,7 +7,7 @@ from ev3dev2.motor import OUTPUT_A, OUTPUT_B, SpeedPercent, MoveSteering
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3, list_sensors
 from ev3dev2.sensor.lego import ColorSensor
 
-from logger import get_logger
+from ev3_toys.logger import get_logger
 
 btn = Button()
 left_cs, right_cs, center_cs = ColorSensor(INPUT_1), ColorSensor(INPUT_2), ColorSensor(INPUT_3)

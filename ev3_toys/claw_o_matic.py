@@ -7,7 +7,7 @@ from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3
 from ev3dev2.sensor.lego import UltrasonicSensor, GyroSensor, TouchSensor
 from ev3dev2.sound import Sound
 
-from multithread_utils import start_thread
+from ev3_toys.multithread_utils import start_thread
 
 button = Button()
 wheels = MoveSteering(OUTPUT_A, OUTPUT_B)
@@ -91,4 +91,4 @@ procs[2].join()
 wheels.off()
 claw.off()
 
-initial_rotations = proximity.rot
+# initial_rotations = proximity.rot
